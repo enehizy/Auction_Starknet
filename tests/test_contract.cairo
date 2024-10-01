@@ -7,7 +7,8 @@ use snforge_std::{declare, ContractClassTrait, DeclareResultTrait};
 // use auction::IHelloStarknetDispatcher;
 // use auction::IHelloStarknetDispatcherTrait;
 
-use Auction_Starknet::Auction;
+use auction::auction::IAuctionDispatcher;
+use auction::auction::IAuctionDispatcherTrait;
 
 fn deploy_contract(name: ByteArray) -> ContractAddress {
     let contract = declare(name).unwrap().contract_class();
@@ -15,27 +16,34 @@ fn deploy_contract(name: ByteArray) -> ContractAddress {
     contract_address
 }
 
+#[test]
+fn test_register_item() {
+    let contract_address = deploy_contract("Auction");
+
+    let dispatcher = IAuctionDispatcher { contract_address };
+
+    dispatcher.register_item('Mona Lisa');
+
+    let get_mona_lisa: bool = dispatcher.is_registered('Mona Lisa');
+    assert!(get_mona_lisa == true, "Mona Lisa not registered");
+}
+
 // #[test]
-// fn test_increase_balance() {
-//     let contract_address = deploy_contract("HelloStarknet");
+// #[should_panic]
+// fn test_register_item_twice () {
+//     let contract_address = deploy_contract("Auction");
+//     let dispatcher = IAuctionDispatcher { contract_address };
 
-//     let dispatcher = IHelloStarknetDispatcher { contract_address };
-
-//     let balance_before = dispatcher.get_balance();
-//     assert(balance_before == 0, 'Invalid balance');
-
-//     dispatcher.increase_balance(42);
-
-//     let balance_after = dispatcher.get_balance();
-//     assert(balance_after == 42, 'Invalid balance');
+//     let register_1 = dispatcher.register_item('Mona Lisa');
+//     let register_2 = dispatcher.register_item('Mona Lisa');
 // }
 
 // #[test]
 // #[feature("safe_dispatcher")]
 // fn test_cannot_increase_balance_with_zero_value() {
-//     let contract_address = deploy_contract("HelloStarknet");
+//     let contract_address = deploy_contract("Auction");
 
-//     let safe_dispatcher = IHelloStarknetSafeDispatcher { contract_address };
+//     let safe_dispatcher = IAuctionDispatcher { contract_address };
 
 //     let balance_before = safe_dispatcher.get_balance().unwrap();
 //     assert(balance_before == 0, 'Invalid balance');
@@ -47,10 +55,3 @@ fn deploy_contract(name: ByteArray) -> ContractAddress {
 //         }
 //     };
 // }
-
-#[test]
-fn test_register_item() {
-    let contract_address = deploy_contract("Auction");
-    let safe_dispatcher = IHelloStarknetSafeDispatcher { contract_address };
-    register_item("Mug 2024");
-}

@@ -1,1 +1,1 @@
-mod auction;
+pub mod auction;

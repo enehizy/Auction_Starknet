@@ -1,5 +1,5 @@
 #[starknet::interface]
-trait IAuction<TContractState> {
+pub trait IAuction<TContractState> {
     fn register_item(ref self: TContractState, item_name: felt252);
 
     fn unregister_item(ref self: TContractState, item_name: felt252);
@@ -17,6 +17,7 @@ pub mod Auction {
     use starknet::storage::{
         StorageMapReadAccess, StorageMapWriteAccess, Map
     };
+    use core::starknet::ContractAddress;
 
     #[storage]
     struct Storage {
@@ -24,7 +25,7 @@ pub mod Auction {
         register: Map<felt252, bool>,
         
         //
-        highest_bidder: felt252,
+        highest_bidder: ContractAddress,
     }
 
 
@@ -34,7 +35,7 @@ pub mod Auction {
         fn register_item(ref self: ContractState, item_name: felt252) {
             //check if item already exists in the register
             let item = self.register.read(item_name);
-            assert!(item != false, "Item already exists");
+            assert!(item == false, "Item already exists");
 
 
             //if item doesn't exist, register item
