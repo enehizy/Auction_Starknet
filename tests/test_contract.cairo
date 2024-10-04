@@ -1,4 +1,4 @@
-use starknet::{ContractAddress, get_caller_address};
+use starknet::ContractAddress;
 use snforge_std::{declare, ContractClassTrait, DeclareResultTrait};
 use auction::auction::IAuctionDispatcher;
 use auction::auction::IAuctionDispatcherTrait;
@@ -60,19 +60,34 @@ fn test_unregister_invalid_item() {
     dispatcher.unregister_item('Mona Lisa');
 }
 
-// #[test]
-// fn test_bid() {
-//     let contract_address = deploy_contract("Auction");
-//     let dispatcher = IAuctionDispatcher { contract_address };
+#[test]
+fn test_bid() {
+    let contract_address = deploy_contract("Auction");
+    let dispatcher = IAuctionDispatcher { contract_address };
 
-//     dispatcher.register_item('Mona Lisa');
-//     dispatcher.bid(get_caller_address(), 'Mona Lisa', 10_000);
+    dispatcher.register_item('Mona Lisa');
+    dispatcher.bid('Mona Lisa', 1_000);
 
-//     let actual: u32 = get_bid(get_caller_address(), 'Mona Lisa');
-//     let expected: u32 = 10_000;
+    let actual: u32 = dispatcher.get_bid('Mona Lisa');
+    let expected: u32 = 1_000;
 
-//     assert!(actual == expected, "Wrong bid price returned for Mona Lisa");
-// }
+    assert!(actual == expected, "Wrong bid price returned for Mona Lisa");
+}
+
+#[test]
+fn test_bid_2() {
+    let contract_address = deploy_contract("Auction");
+    let dispatcher = IAuctionDispatcher { contract_address };
+
+    dispatcher.register_item('Mona Lisa');
+    dispatcher.bid('Mona Lisa', 1_000);
+    dispatcher.bid('Mona Lisa', 2_000);
+
+    let actual: u32 = dispatcher.get_bid('Mona Lisa');
+    let expected: u32 = 2_000;
+
+    assert!(actual == expected, "Wrong bid price returned for Mona Lisa");
+}
 
 #[test]
 #[should_panic]
@@ -80,34 +95,34 @@ fn test_bid_for_invalid_item() {
     let contract_address = deploy_contract("Auction");
     let dispatcher = IAuctionDispatcher { contract_address };
 
-    dispatcher.bid(get_caller_address(), 'Mona Lisa', 10_000);
+    dispatcher.bid('Mona Lisa', 10_000);
 }
 
-// #[test]
-// fn test_get_highest_bidder() {
-//     let contract_address = deploy_contract("Auction");
-//     let dispatcher = IAuctionDispatcher { contract_address };
+#[test]
+fn test_get_highest_bidder() {
+    let contract_address = deploy_contract("Auction");
+    let dispatcher = IAuctionDispatcher { contract_address };
 
-//     dispatcher.register_item('Mona Lisa');
-//     dispatcher.bid(get_caller_address(), 'Mona Lisa', 1_000);
-//     dispatcher.bid(get_caller_address(), 'Mona Lisa', 2_000);
-//     dispatcher.bid(get_caller_address(), 'Mona Lisa', 3_000);
-    
-//     let (_bidder_address, highest_amount_bid)  = dispatcher.get_highest_bidder('Mona Lisa');
-//     let expected = 3_000;
+    dispatcher.register_item('Mona Lisa');
+    dispatcher.bid('Mona Lisa', 1_000);
+    dispatcher.bid('Mona Lisa', 2_000);
+    dispatcher.bid('Mona Lisa', 3_000);
 
-//     assert!(highest_amount_bid == expected, "Highest bid should be 3_000");
-// }
+    let highest_amount_bid  = dispatcher.get_highest_bidder('Mona Lisa');
+    let expected = 3_000;
 
-// #[test]
-// #[should_panic]
-// fn test_get_highest_bidder_on_item_with_no_bids() {
-//     let contract_address = deploy_contract("Auction");
-//     let dispatcher = IAuctionDispatcher { contract_address };
+    assert!(highest_amount_bid == expected, "Highest bid should be 3_000");
+}
 
-//     dispatcher.register_item('Mona Lisa');
-//     dispatcher.get_highest_bidder('Mona Lisa');
-// }
+#[test]
+#[should_panic]
+fn test_get_highest_bidder_on_item_with_no_bids() {
+    let contract_address = deploy_contract("Auction");
+    let dispatcher = IAuctionDispatcher { contract_address };
+
+    dispatcher.register_item('Mona Lisa');
+    dispatcher.get_highest_bidder('Mona Lisa');
+}
 
 #[test]
 fn test_is_registered() {
